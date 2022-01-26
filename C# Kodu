@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Yazilim_İle_Tablo_Ekleme_Ve_Kontrol
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string connection_string = @"Data Source="+comboBox1.SelectedItem.ToString()+"; Initial Catalog="+comboBox2.SelectedItem.ToString()+"; Integrated Security=True";
+            using (SqlConnection conn = new SqlConnection(connection_string))
+            {
+                conn.Open();
+                string sorgu =
+                " if  not exists(	SELECT name FROM SYS.TABLES where name = '" + textBox1.Text + "')" +
+                " begin" +
+                " create table " + textBox1.Text + "(" +
+                " id int," +
+                " ad varchar(50), " +
+                " soyad varchar(50)," +
+                " numara int);" +
+                " return;" +
+                " end" +
+                " else" +
+                " begin" +
+                " select 0" +
+                " end";
+                using (SqlCommand cmnd = new SqlCommand(sorgu, conn))
+                {
+                    using (SqlDataReader read = cmnd.ExecuteReader())
+                    {
+                        if (read.HasRows)
+                        {
+                            while (read.Read())
+                            {
+                                if (read[0].ToString() == "0")
+                                {
+                                    MessageBox.Show("Zaten var");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            SqlDataSourceEnumerator instance = SqlDataSourceEnumerator.Instance;
+            DataTable table = instance.GetDataSources();
+            string ServerName = Environment.MachineName;
+            foreach (DataRow dr in table.Rows)
+            {
+                comboBox1.Items.Add(ServerName + "\\" + dr["InstanceName"].ToString());
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string connection_string = @"Data Source=" + comboBox1.SelectedItem.ToString() + "; Integrated Security=True";
+            using (SqlConnection con = new SqlConnection(connection_string))
+            {
+                con.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT name from sys.databases", con))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            comboBox2.Items.Add(dr[0].ToString());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

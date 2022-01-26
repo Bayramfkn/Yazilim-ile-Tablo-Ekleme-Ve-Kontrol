@@ -1,0 +1,17 @@
+if  not exists(	SELECT name FROM SYS.TABLES where name = 'alo')
+ begin
+ create table alo(
+ id int,
+ ad varchar(50), 
+ soyad varchar(50), 
+ numara int 
+ );
+ select 1
+ return;
+ end
+ else 
+ begin
+select 0
+ end
+
+
